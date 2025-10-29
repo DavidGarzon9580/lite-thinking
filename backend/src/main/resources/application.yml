@@ -37,6 +37,12 @@ aws:
     bucket: ${AWS_S3_BUCKET:litethinking-inventory}
     enabled: ${AWS_S3_ENABLED:false}
 
+mail:
+  provider: ${MAIL_PROVIDER:local}
+  sender: ${MAIL_SENDER:no-reply@litethinking.com}
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY:}
+
 springdoc:
   api-docs:
     path: /api-docs

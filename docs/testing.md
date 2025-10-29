@@ -23,5 +23,5 @@
 ## Recommended Next Steps
 
 1. Integrate Jacoco + Sonar (backend) and Vitest coverage thresholds (frontend).
-2. Add Playwright smoke tests once the App Runner deployment is ready.
+2. Add Playwright smoke tests once the Render deployment is ready.
 3. Automate seed data reset with `CommandLineRunner` profile toggles to keep staging clean.

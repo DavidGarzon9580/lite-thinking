@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: lite-thinking-backend
+    env: docker
+    plan: starter
+    rootDirectory: backend
+    dockerfilePath: Dockerfile
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: MAIL_PROVIDER
+        value: sendgrid
+      - key: MAIL_SENDER
+        sync: false
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: AWS_S3_ENABLED
+        value: "false"
+      - key: AWS_SES_ENABLED
+        value: "false"
+      - key: AWS_REGION
+        value: us-east-1

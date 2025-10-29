@@ -6,8 +6,9 @@ export const useApi = () => {
   const { token, logout } = useAuth();
 
   const client = useMemo(() => {
+    const baseURL = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
     const instance = axios.create({
-      baseURL: '/api'
+      baseURL
     });
 
     instance.interceptors.request.use((config) => {

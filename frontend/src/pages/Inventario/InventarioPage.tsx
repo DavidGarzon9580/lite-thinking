@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { listarEmpresas } from '../../services/empresas';
@@ -82,7 +82,10 @@ export const InventarioPage: React.FC = () => {
     <main className="content" id="main-content" role="main">
       <div className="card">
         <h2>Inventario por empresa</h2>
-        <p>Genera el PDF del inventario y envialo usando la integracion con AWS SES (o el stub local).</p>
+        <p>
+          Genera el PDF del inventario y envialo usando la integracion de correo configurada (SendGrid por defecto o
+          el stub local para desarrollo).
+        </p>
 
         <div className="input-group select-compact">
           <label htmlFor="empresaNit">Empresa</label>
