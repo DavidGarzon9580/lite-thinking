@@ -49,8 +49,8 @@ public class DataInitializer {
             Empresa empresa = empresaRepository.findById("900123456")
                     .orElseGet(() -> empresaRepository.save(new Empresa("900123456", "Lite Thinking", "Calle 1 #2-3", "+57 312 000 1111")));
 
-            Categoria categoria = categoriaRepository.findByNombre("Tecnología")
-                    .orElseGet(() -> categoriaRepository.save(new Categoria("Tecnología")));
+            Categoria categoria = categoriaRepository.findByNombre("Tecnologia")
+                    .orElseGet(() -> categoriaRepository.save(new Categoria("Tecnologia")));
 
             if (productoRepository.findByEmpresaNit(empresa.getNit()).isEmpty()) {
                 Producto laptop = new Producto("PROD-001", "Laptop Pro", "Laptop de 16GB RAM", empresa);

@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.of(
                         HttpStatus.BAD_REQUEST.value(),
                         HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                        "Validación fallida",
+                        "Validacion fallida",
                         details,
                         request.getRequestURI()
                 ));

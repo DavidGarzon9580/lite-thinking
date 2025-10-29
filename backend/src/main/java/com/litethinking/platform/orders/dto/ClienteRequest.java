@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 public record ClienteRequest(
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,
-        @Email(message = "Correo inválido")
+        @Email(message = "Correo invalido")
         @NotBlank(message = "El correo es obligatorio")
         String correo
 ) {

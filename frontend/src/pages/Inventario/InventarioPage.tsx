@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { listarEmpresas } from '../services/empresas';
-import { useApi } from '../hooks/useApi';
-import { descargarInventario, enviarInventarioPorCorreo } from '../services/inventario';
-import '../styles/InventarioPage.css';
+import { isAxiosError } from 'axios';
+import { listarEmpresas } from '../../services/empresas';
+import { useApi } from '../../hooks/useApi';
+import { descargarInventario, enviarInventarioPorCorreo } from '../../services/inventario';
+import './InventarioPage.css';
 
 export const InventarioPage: React.FC = () => {
   const api = useApi();
@@ -17,6 +18,16 @@ export const InventarioPage: React.FC = () => {
     queryFn: () => listarEmpresas(api)
   });
 
+  const resolveErrorMessage = (fallback: string, cause: unknown) => {
+    if (isAxiosError(cause)) {
+      const payload = cause.response?.data as { message?: string };
+      if (payload?.message) {
+        return payload.message;
+      }
+    }
+    return fallback;
+  };
+
   const downloadMutation = useMutation({
     mutationFn: () => descargarInventario(api, empresaNit),
     onSuccess: (blob) => {
@@ -28,16 +39,16 @@ export const InventarioPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
       setMessage('Inventario descargado correctamente');
     },
-    onError: () => setError('No fue posible descargar el inventario')
+    onError: (cause) => setError(resolveErrorMessage('No fue posible descargar el inventario', cause))
   });
 
   const emailMutation = useMutation({
     mutationFn: () => enviarInventarioPorCorreo(api, empresaNit, correo),
     onSuccess: () => {
-      setMessage('Solicitud enviada. Revisa los logs o tu correo dependiendo de la configuración.');
+      setMessage('Solicitud enviada. Revisa los logs o tu correo dependiendo de la configuracion.');
       setCorreo('');
     },
-    onError: () => setError('No fue posible enviar el inventario por correo')
+    onError: (cause) => setError(resolveErrorMessage('No fue posible enviar el inventario por correo', cause))
   });
 
   const handleDownload = () => {
@@ -61,11 +72,17 @@ export const InventarioPage: React.FC = () => {
     emailMutation.mutate();
   };
 
+  const feedbackClass = useMemo(() => {
+    if (error) return 'feedback-banner error';
+    if (message) return 'feedback-banner success';
+    return undefined;
+  }, [error, message]);
+
   return (
     <main className="content" id="main-content" role="main">
       <div className="card">
         <h2>Inventario por empresa</h2>
-        <p>Genera el PDF del inventario y envíalo usando la integración con AWS SES (o el stub local).</p>
+        <p>Genera el PDF del inventario y envialo usando la integracion con AWS SES (o el stub local).</p>
 
         <div className="input-group select-compact">
           <label htmlFor="empresaNit">Empresa</label>
@@ -87,7 +104,7 @@ export const InventarioPage: React.FC = () => {
           <button
             className="btn-primary"
             onClick={handleDownload}
-            disabled={downloadMutation.isPending}
+            disabled={!empresaNit || downloadMutation.isPending}
             aria-busy={downloadMutation.isPending}
           >
             Descargar PDF
@@ -113,22 +130,22 @@ export const InventarioPage: React.FC = () => {
           <button
             className="btn-secondary"
             type="submit"
-            disabled={emailMutation.isPending}
+            disabled={!empresaNit || emailMutation.isPending}
             aria-busy={emailMutation.isPending}
           >
             Enviar PDF
           </button>
         </form>
 
-        {message && (
-          <p className="text-success" role="status" aria-live="polite">
-            {message}
-          </p>
-        )}
-        {error && (
-          <p className="error" id="inventario-error" role="alert" aria-live="assertive">
-            {error}
-          </p>
+        {(message || error) && (
+          <div
+            className={feedbackClass}
+            role={error ? 'alert' : 'status'}
+            aria-live={error ? 'assertive' : 'polite'}
+            id={error ? 'inventario-error' : undefined}
+          >
+            {error ?? message}
+          </div>
         )}
       </div>
     </main>

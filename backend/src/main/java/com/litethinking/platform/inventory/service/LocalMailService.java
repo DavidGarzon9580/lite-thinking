@@ -12,7 +12,7 @@ public class LocalMailService implements MailService {
 
     @Override
     public void sendInventoryEmail(String to, String subject, String body, byte[] attachment) {
-        log.info("Simulando envío de correo a {} con asunto '{}'. PDF adjunto de {} bytes.", to, subject, attachment.length);
-        // En un entorno con AWS disponible, reemplazar por implementación SES real.
+        log.info("Simulando envio de correo a {} con asunto '{}'. PDF adjunto de {} bytes.", to, subject, attachment.length);
+        // En un entorno con AWS disponible, reemplazar por implementacion SES real.
     }
 }

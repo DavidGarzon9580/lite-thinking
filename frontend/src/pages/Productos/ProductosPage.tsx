@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../hooks/useApi';
-import { listarEmpresas } from '../services/empresas';
-import { listarCategorias } from '../services/categorias';
+import { isAxiosError } from 'axios';
+import { useApi } from '../../hooks/useApi';
+import { listarEmpresas } from '../../services/empresas';
+import { listarCategorias } from '../../services/categorias';
 import {
   listarProductosPorEmpresa,
   crearProducto,
   actualizarProducto,
   eliminarProducto
-} from '../services/productos';
-import { Categoria, Empresa, Producto } from '../types';
-import { PrecioRequest } from '../services/types';
-import '../styles/ProductosPage.css';
+} from '../../services/productos';
+import { Categoria, Empresa, Producto } from '../../types';
+import { PrecioRequest } from '../../services/types';
+import './ProductosPage.css';
 
 type FormState = {
   id?: string;
@@ -94,6 +95,16 @@ export const ProductosPage: React.FC = () => {
     }));
   };
 
+  const resolveErrorMessage = (fallback: string, cause: unknown) => {
+    if (isAxiosError(cause)) {
+      const payload = cause.response?.data as { message?: string };
+      if (typeof payload?.message === 'string' && payload.message.trim().length) {
+        return payload.message;
+      }
+    }
+    return fallback;
+  };
+
   const createMutation = useMutation({
     mutationFn: () =>
       crearProducto(api, {
@@ -110,8 +121,8 @@ export const ProductosPage: React.FC = () => {
       setSuccess('Producto registrado correctamente.');
       setError(null);
     },
-    onError: () => {
-      setError('No fue posible registrar el producto');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible registrar el producto', cause));
       setSuccess(null);
     }
   });
@@ -132,8 +143,8 @@ export const ProductosPage: React.FC = () => {
       setSuccess('Producto actualizado correctamente.');
       setError(null);
     },
-    onError: () => {
-      setError('No fue posible actualizar el producto');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible actualizar el producto', cause));
       setSuccess(null);
     }
   });
@@ -145,8 +156,8 @@ export const ProductosPage: React.FC = () => {
       setSuccess('Producto eliminado.');
       setError(null);
     },
-    onError: () => {
-      setError('No fue posible eliminar el producto');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible eliminar el producto', cause));
       setSuccess(null);
     }
   });
@@ -181,24 +192,29 @@ export const ProductosPage: React.FC = () => {
     setSelectedEmpresa(producto.empresaNit);
   };
 
-  const categoriesSuggestions = useMemo(() => categoriasQuery.data?.map((cat) => cat.nombre) ?? [], [categoriasQuery.data]);
+  const categoriesSuggestions = useMemo(
+    () => categoriasQuery.data?.map((cat: Categoria) => cat.nombre) ?? [],
+    [categoriasQuery.data]
+  );
+
+  const mutationIsPending = createMutation.isPending || updateMutation.isPending;
 
   return (
     <main className="content" id="main-content" role="main">
       <div className="card">
-        <h2>Gestión de productos</h2>
-        <p>Registra productos por empresa, define precios en diferentes monedas y categorízalos.</p>
+        <h2>Gestion de productos</h2>
+        <p>Registra productos por empresa, define precios en diferentes monedas y categorizalos.</p>
 
-          {error && (
-            <p className="error" role="alert" aria-live="assertive" id="producto-error">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="text-success" role="status" aria-live="polite">
-              {success}
-            </p>
-          )}
+        {(error || success) && (
+          <div
+            className={error ? 'feedback-banner error' : 'feedback-banner success'}
+            role={error ? 'alert' : 'status'}
+            aria-live={error ? 'assertive' : 'polite'}
+            id={error ? 'producto-error' : undefined}
+          >
+            {error ?? success}
+          </div>
+        )}
 
         <div className="input-group select-compact">
           <label htmlFor="empresaNit">Empresa</label>
@@ -220,9 +236,9 @@ export const ProductosPage: React.FC = () => {
           </select>
         </div>
 
-        <form className="form-grid" onSubmit={handleSubmit} aria-describedby={error ? 'producto-error' : undefined}>
+        <form className="form-grid" onSubmit={handleSubmit}>
           <div className="input-group">
-            <label htmlFor="codigo">Código</label>
+            <label htmlFor="codigo">Codigo</label>
             <input id="codigo" name="codigo" value={form.codigo} onChange={handleChange} required />
           </div>
 
@@ -232,7 +248,7 @@ export const ProductosPage: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label htmlFor="caracteristicas">Características</label>
+            <label htmlFor="caracteristicas">Caracteristicas</label>
             <textarea
               id="caracteristicas"
               name="caracteristicas"
@@ -243,7 +259,7 @@ export const ProductosPage: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label htmlFor="categorias">Categorías (separadas por coma)</label>
+            <label htmlFor="categorias">Categorias (separadas por coma)</label>
             <input
               id="categorias"
               name="categorias"
@@ -286,16 +302,11 @@ export const ProductosPage: React.FC = () => {
             ))}
 
             <button className="btn-secondary" type="button" onClick={addPrice}>
-              Añadir precio
+              Anadir precio
             </button>
           </div>
 
-          <button
-            className="btn-primary"
-            type="submit"
-            disabled={createMutation.isPending || updateMutation.isPending}
-            aria-busy={createMutation.isPending || updateMutation.isPending}
-          >
+          <button className="btn-primary" type="submit" disabled={mutationIsPending} aria-busy={mutationIsPending}>
             {form.id ? 'Actualizar producto' : 'Crear producto'}
           </button>
         </form>
@@ -314,9 +325,9 @@ export const ProductosPage: React.FC = () => {
               <caption className="visually-hidden">Productos registrados por empresa</caption>
               <thead>
                 <tr>
-                  <th scope="col">Código</th>
+                  <th scope="col">Codigo</th>
                   <th scope="col">Nombre</th>
-                  <th scope="col">Categorías</th>
+                  <th scope="col">Categorias</th>
                   <th scope="col">Precios</th>
                   <th scope="col">Acciones</th>
                 </tr>
@@ -338,10 +349,7 @@ export const ProductosPage: React.FC = () => {
                       <button className="btn-secondary" onClick={() => handleEdit(producto)}>
                         Editar
                       </button>
-                      <button
-                        className="btn-secondary btn-danger"
-                        onClick={() => deleteMutation.mutate(producto.id)}
-                      >
+                      <button className="btn-secondary btn-danger" onClick={() => deleteMutation.mutate(producto.id)}>
                         Eliminar
                       </button>
                     </td>

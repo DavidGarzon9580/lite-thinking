@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useApi } from '../hooks/useApi';
+import { isAxiosError } from 'axios';
+import { useApi } from '../../hooks/useApi';
 import {
   listarEmpresas,
   crearEmpresa,
@@ -8,16 +9,26 @@ import {
   eliminarEmpresa,
   EmpresaInput,
   EmpresaUpdateInput
-} from '../services/empresas';
-import { useAuth } from '../context/AuthContext';
-import { Empresa } from '../types';
-import '../styles/EmpresasPage.css';
+} from '../../services/empresas';
+import { useAuth } from '../../context/AuthContext';
+import { Empresa } from '../../types';
+import './EmpresasPage.css';
 
 const emptyForm: EmpresaInput = {
   nit: '',
   nombre: '',
   direccion: '',
   telefono: ''
+};
+
+const resolveErrorMessage = (fallback: string, cause: unknown) => {
+  if (isAxiosError(cause)) {
+    const candidate = cause.response?.data as { message?: string };
+    if (candidate?.message) {
+      return candidate.message;
+    }
+  }
+  return fallback;
 };
 
 export const EmpresasPage: React.FC = () => {
@@ -53,22 +64,21 @@ export const EmpresasPage: React.FC = () => {
       resetForm();
       setSuccess('Empresa creada correctamente.');
     },
-    onError: () => {
-      setError('No fue posible crear la empresa');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible crear la empresa', cause));
       setSuccess(null);
     }
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ nit, data }: { nit: string; data: EmpresaUpdateInput }) =>
-      actualizarEmpresa(api, nit, data),
+    mutationFn: ({ nit, data }: { nit: string; data: EmpresaUpdateInput }) => actualizarEmpresa(api, nit, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['empresas'] });
       resetForm();
       setSuccess('Empresa actualizada correctamente.');
     },
-    onError: () => {
-      setError('No fue posible actualizar la empresa');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible actualizar la empresa', cause));
       setSuccess(null);
     }
   });
@@ -80,8 +90,8 @@ export const EmpresasPage: React.FC = () => {
       setSuccess('Empresa eliminada.');
       setError(null);
     },
-    onError: () => {
-      setError('No fue posible eliminar la empresa');
+    onError: (cause) => {
+      setError(resolveErrorMessage('No fue posible eliminar la empresa', cause));
       setSuccess(null);
     }
   });
@@ -109,30 +119,35 @@ export const EmpresasPage: React.FC = () => {
   };
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const hasFeedback = Boolean(error || success);
+  const feedbackClass = useMemo(() => {
+    if (error) return 'feedback-banner error';
+    if (success) return 'feedback-banner success';
+    return undefined;
+  }, [error, success]);
 
   return (
     <main className="content" id="main-content" role="main">
       <div className="card">
         <h2>Empresas registradas</h2>
-        <p>Visualiza y administra la información principal de las empresas.</p>
+        <p>Visualiza y administra la informacion principal de las empresas.</p>
 
-        <div aria-live="polite">
-          {isLoading && (
-            <p role="status" aria-live="polite">
-              Cargando...
-            </p>
-          )}
-          {error && (
-            <p className="error" role="alert" id="empresa-error">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="text-success" role="status" aria-live="polite">
-              {success}
-            </p>
-          )}
-        </div>
+        {isLoading && (
+          <p role="status" aria-live="polite">
+            Cargando...
+          </p>
+        )}
+
+        {hasFeedback && (
+          <div
+            className={feedbackClass}
+            role={error ? 'alert' : 'status'}
+            aria-live={error ? 'assertive' : 'polite'}
+            id={error ? 'empresa-error' : undefined}
+          >
+            {error ?? success}
+          </div>
+        )}
 
         {role === 'ADMIN' && (
           <form
@@ -158,34 +173,17 @@ export const EmpresasPage: React.FC = () => {
             </div>
 
             <div className="input-group">
-              <label htmlFor="direccion">Dirección</label>
-              <input
-                id="direccion"
-                name="direccion"
-                value={form.direccion}
-                onChange={handleChange}
-                required
-              />
+              <label htmlFor="direccion">Direccion</label>
+              <input id="direccion" name="direccion" value={form.direccion} onChange={handleChange} required />
             </div>
 
             <div className="input-group">
-              <label htmlFor="telefono">Teléfono</label>
-              <input
-                id="telefono"
-                name="telefono"
-                value={form.telefono}
-                onChange={handleChange}
-                required
-              />
+              <label htmlFor="telefono">Telefono</label>
+              <input id="telefono" name="telefono" value={form.telefono} onChange={handleChange} required />
             </div>
 
             <div className="form-actions">
-              <button
-                className="btn-primary"
-                type="submit"
-                disabled={isSubmitting}
-                aria-busy={isSubmitting}
-              >
+              <button className="btn-primary" type="submit" disabled={isSubmitting} aria-busy={isSubmitting}>
                 {editingNit ? 'Actualizar' : 'Crear'}
               </button>
               {editingNit && (
@@ -204,8 +202,8 @@ export const EmpresasPage: React.FC = () => {
               <tr>
                 <th scope="col">NIT</th>
                 <th scope="col">Nombre</th>
-                <th scope="col">Dirección</th>
-                <th scope="col">Teléfono</th>
+                <th scope="col">Direccion</th>
+                <th scope="col">Telefono</th>
                 <th scope="col">Productos</th>
                 {role === 'ADMIN' && <th scope="col">Acciones</th>}
               </tr>
@@ -223,10 +221,7 @@ export const EmpresasPage: React.FC = () => {
                       <button className="btn-secondary" onClick={() => handleEdit(empresa)}>
                         Editar
                       </button>
-                      <button
-                        className="btn-secondary btn-danger"
-                        onClick={() => deleteMutation.mutate(empresa.nit)}
-                      >
+                      <button className="btn-secondary btn-danger" onClick={() => deleteMutation.mutate(empresa.nit)}>
                         Eliminar
                       </button>
                     </td>

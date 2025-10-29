@@ -40,7 +40,7 @@ public class AuthService {
             String token = jwtService.generateToken(user);
             return new TokenResponse(token, jwtService.getExpirationMinutes());
         } catch (Exception e) {
-            throw new InvalidCredentialsException("Credenciales inválidas");
+            throw new InvalidCredentialsException("Credenciales invalidas");
         }
     }
 }

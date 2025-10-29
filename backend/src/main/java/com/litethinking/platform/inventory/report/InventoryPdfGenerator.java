@@ -31,10 +31,10 @@ public class InventoryPdfGenerator {
             PdfPTable table = new PdfPTable(5);
             table.setWidthPercentage(100);
 
-            addHeader(table, "Código");
+            addHeader(table, "Codigo");
             addHeader(table, "Nombre");
-            addHeader(table, "Características");
-            addHeader(table, "Categorías");
+            addHeader(table, "Caracteristicas");
+            addHeader(table, "Categorias");
             addHeader(table, "Precios");
 
             for (Producto producto : productos) {

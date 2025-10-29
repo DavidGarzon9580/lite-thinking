@@ -22,7 +22,7 @@ public class CategoriaService {
     @Transactional
     public CategoriaResponse crear(CategoriaRequest request) {
         categoriaRepository.findByNombre(request.nombre()).ifPresent(existing -> {
-            throw new ResourceAlreadyExistsException("La categoría ya existe");
+            throw new ResourceAlreadyExistsException("La categoria ya existe");
         });
 
         Categoria categoria = new Categoria(request.nombre());

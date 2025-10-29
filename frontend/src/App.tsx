@@ -1,11 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Header } from './components/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
-import { EmpresasPage } from './pages/EmpresasPage';
-import { ProductosPage } from './pages/ProductosPage';
-import { InventarioPage } from './pages/InventarioPage';
+import { HomePage, LoginPage, EmpresasPage, ProductosPage, InventarioPage } from './pages';
 
 const App: React.FC = () => {
   return (

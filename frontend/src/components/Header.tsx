@@ -31,7 +31,7 @@ export const Header: React.FC = () => {
         <div>
           {token ? (
             <button className="btn-secondary" onClick={logout}>
-              Cerrar sesión
+              Cerrar sesion
             </button>
           ) : (
             <Link to="/login" className="btn-primary">

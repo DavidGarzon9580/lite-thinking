@@ -15,9 +15,18 @@ type AuthContextValue = AuthState & {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const isExpired = (exp?: number) => {
+  if (!exp) return false;
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+  return exp <= nowInSeconds;
+};
+
 const decodeToken = (token: string): { email: string; role: UserRole } | null => {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
+    if (isExpired(payload.exp)) {
+      return null;
+    }
     return {
       email: payload.sub,
       role: payload.role as UserRole
@@ -58,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login: (token: string) => {
       const decoded = decodeToken(token);
       if (!decoded) {
-        throw new Error('Token inválido');
+        throw new Error('Token invalido');
       }
       setState({
         token,

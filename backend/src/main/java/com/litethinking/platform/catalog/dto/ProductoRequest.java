@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record ProductoRequest(
-        @NotBlank(message = "El código es obligatorio")
+        @NotBlank(message = "El codigo es obligatorio")
         String codigo,
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,
@@ -18,7 +18,7 @@ public record ProductoRequest(
         @NotEmpty(message = "Debe registrar al menos un precio")
         @Valid
         List<PrecioRequest> precios,
-        @NotNull(message = "Debe especificar las categorías (lista vacía si no aplica)")
+        @NotNull(message = "Debe especificar las categorias (lista vacia si no aplica)")
         List<String> categorias
 ) {
 }

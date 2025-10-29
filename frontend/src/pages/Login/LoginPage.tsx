@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth';
-import { useAuth } from '../context/AuthContext';
-import '../styles/LoginPage.css';
+import { isAxiosError } from 'axios';
+import { login } from '../../services/auth';
+import { useAuth } from '../../context/AuthContext';
+import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,7 +22,12 @@ export const LoginPage: React.FC = () => {
       setToken(response.token);
       navigate('/empresas');
     } catch (err: unknown) {
-      setError('No fue posible iniciar sesión. Verifica tus credenciales.');
+      if (isAxiosError(err)) {
+        const payload = err.response?.data as { message?: string };
+        setError(payload?.message ?? 'No fue posible iniciar sesion. Verifica tus credenciales.');
+      } else {
+        setError('No fue posible iniciar sesion. Verifica tus credenciales.');
+      }
     } finally {
       setLoading(false);
     }
@@ -30,8 +36,8 @@ export const LoginPage: React.FC = () => {
   return (
     <main className="content" id="main-content" role="main">
       <div className="card card-narrow">
-        <h2>Iniciar sesión</h2>
-        <p>Ingresa con tu correo y contraseña registrados.</p>
+        <h2>Iniciar sesion</h2>
+        <p>Ingresa con tu correo y contrasena registrados.</p>
         <form className="form-grid" onSubmit={handleSubmit} aria-describedby={error ? 'login-error' : undefined}>
           <div className="input-group">
             <label htmlFor="email">Correo</label>
@@ -47,31 +53,26 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <div className="input-group">
-            <label htmlFor="password">Contraseña</label>
+            <label htmlFor="password">Contrasena</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
-              placeholder="Contraseña"
+              placeholder="Contrasena"
               aria-required="true"
               autoComplete="current-password"
             />
           </div>
 
           {error && (
-            <span className="error" id="login-error" role="alert" aria-live="assertive">
+            <div className="feedback-banner error" id="login-error" role="alert" aria-live="assertive">
               {error}
-            </span>
+            </div>
           )}
 
-          <button
-            className="btn-primary"
-            type="submit"
-            disabled={loading}
-            aria-busy={loading}
-          >
+          <button className="btn-primary" type="submit" disabled={loading} aria-busy={loading}>
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
         </form>

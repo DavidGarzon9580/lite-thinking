@@ -21,7 +21,6 @@
         <java.version>17</java.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <jjwt.version>0.11.5</jjwt.version>
-        <aws.sdk.version>2.21.49</aws.sdk.version>
         <aws.sdk.version>2.25.26</aws.sdk.version>
 
     </properties>

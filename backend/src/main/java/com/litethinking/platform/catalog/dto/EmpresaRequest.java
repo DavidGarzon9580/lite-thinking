@@ -9,9 +9,9 @@ public record EmpresaRequest(
         String nit,
         @NotBlank(message = "El nombre es obligatorio")
         String nombre,
-        @NotBlank(message = "La dirección es obligatoria")
+        @NotBlank(message = "La direccion es obligatoria")
         String direccion,
-        @NotBlank(message = "El teléfono es obligatorio")
+        @NotBlank(message = "El telefono es obligatorio")
         String telefono
 ) {
 }
