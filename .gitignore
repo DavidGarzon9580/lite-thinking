@@ -1,0 +1,18 @@
+# Build artifacts
+backend/target/
+frontend/node_modules/
+frontend/dist/
+
+# Terraform cache
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.backup
+
+# Environment files
+*.env
+backend/backend.env
+
+# Logs
+*.log
+*.tmp
+

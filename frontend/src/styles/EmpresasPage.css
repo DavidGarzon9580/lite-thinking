@@ -1,0 +1,26 @@
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.table-wrapper {
+  margin-top: 2rem;
+  overflow-x: auto;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.text-success {
+  color: #16a34a;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}

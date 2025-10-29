@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_REPO_NAME: litethinking-backend
+    IMAGE_TAG: latest
+    DOCKERFILE_PATH: backend/Dockerfile
+    CONTEXT_PATH: backend
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - echo Building JAR...
+      - cd backend
+      - mvn clean package
+      - cd ..
+  build:
+    commands:
+      - echo Building Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG -f $DOCKERFILE_PATH $CONTEXT_PATH
+  post_build:
+    commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - printf '{"ImageURI":"%s.dkr.ecr.%s.amazonaws.com/%s:%s"}' $ACCOUNT_ID $AWS_REGION $IMAGE_REPO_NAME $IMAGE_TAG > imageDetail.json
+
+artifacts:
+  files:
+    - imageDetail.json

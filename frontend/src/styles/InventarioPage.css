@@ -1,0 +1,19 @@
+.select-compact {
+  max-width: 320px;
+}
+
+.inventory-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+.inventory-form {
+  margin-top: 1.5rem;
+  max-width: 400px;
+}
+
+.text-success {
+  color: #16a34a;
+}
