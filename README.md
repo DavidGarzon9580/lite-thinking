@@ -111,13 +111,15 @@ npm run dev
 
 Vite sirve la SPA en `http://localhost:5173` y reenvia `/api` al backend local.
 
-## Correo electrònico
+## Correo electronico
 
 `MailService` se selecciona segun `MAIL_PROVIDER`:
 
 - `local` (default): solo registra en logs.
 - `sendgrid`: utiliza SendGrid REST (`SENDGRID_API_KEY`, `MAIL_SENDER`).
 - `aws-ses`: mantiene la implementacion previa (requiere credenciales AWS + `AWS_SES_ENABLED=true`).
+
+> **Nota:** Los envios correctos desde SendGrid aparecen con status `202`. Si el correo tarda en llegar, revisa la carpeta de spam/promociones o el panel de actividad de SendGrid.
 
 ## Pruebas
 
@@ -154,14 +156,14 @@ Guia ampliada en `docs/testing.md`. Resumen:
 5. Actualiza `frontend/netlify.toml` reemplazando `https://backend-ejemplo.onrender.com` por el dominio real de tu backend para que las rutas `/api/*` se redirijan correctamente.
 
 ### 5. Integraciones opcionales
-- **Inventario en S3:** mantiene la implementación anterior (`AWS_S3_ENABLED=true` + credenciales) aunque no es necesario para Render/Netlify; también puedes usar servicios como Backblaze o Cloudflare R2 ajustando `DocumentStorageService`.
+- **Inventario en S3:** mantiene la implementación anterior (`AWS_S3_ENABLED=true` + credenciales) aunque no es necesario para Render/Vercel; también puedes usar servicios como Backblaze o Cloudflare R2 ajustando `DocumentStorageService`.
 - **Infra con Terraform:** `infra/terraform/` contiene ejemplos para AWS; adáptalo si decides ir por allí.
 
 ## Notas adicionales
 
 - `docs/testing.md` recoge los comandos y objetivos de cobertura.
 - `docs/architecture.md` contiene modelo ER, diagrama de componentes y decisiones de diseño.
-- El seed crea usuarios admin/viewer y una empresa/producto de ejemplo.
+- El seed crea usuarios admin/viewer y multiples empresas, categorias y productos para poblar los formularios.
 - El `MailService` selecciona automaticamente la implementacion (local, SendGrid o AWS SES) segun `MAIL_PROVIDER`.
 - La nueva estructura por features simplifica el mantenimiento del frontend y evita estilos/globales heredados indeseados.
 
@@ -172,4 +174,4 @@ Guia ampliada en `docs/testing.md`. Resumen:
 3. Agregar pruebas de integracion end-to-end (Playwright) para los flujos criticos (login, CRUD, inventario).
 4. Preparar scripts de migracion para datos preexistentes y parametrizar seeds por perfil.
 
-> Una vez valides localmente (`mvn test`, `npm run build`), continua con la configuracion en Render/Netlify (o tu nube elegida) y publica los servicios. La aplicacion esta lista para operar end-to-end siguiendo los pasos anteriores.
+> Una vez valides localmente (`mvn test`, `npm run build`), continua con la configuracion en Render/Vercel (o tu nube elegida) y publica los servicios. La aplicacion esta lista para operar end-to-end siguiendo los pasos anteriores.

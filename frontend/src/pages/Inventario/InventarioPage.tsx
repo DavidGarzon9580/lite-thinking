@@ -45,7 +45,7 @@ export const InventarioPage: React.FC = () => {
   const emailMutation = useMutation({
     mutationFn: () => enviarInventarioPorCorreo(api, empresaNit, correo),
     onSuccess: () => {
-      setMessage('Solicitud enviada. Revisa los logs o tu correo dependiendo de la configuracion.');
+      setMessage('Inventario enviado. Revisa tu correo (incluida la carpeta de spam) para descargar el PDF adjunto.');
       setCorreo('');
     },
     onError: (cause) => setError(resolveErrorMessage('No fue posible enviar el inventario por correo', cause))
