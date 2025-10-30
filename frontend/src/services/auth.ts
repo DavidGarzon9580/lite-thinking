@@ -15,11 +15,13 @@ type TokenResponse = {
 };
 
 export const login = async (payload: LoginRequest): Promise<TokenResponse> => {
-  const { data } = await axios.post<TokenResponse>('/api/auth/login', payload);
+  const baseURL = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+  const { data } = await axios.post<TokenResponse>(`${baseURL}/auth/login`, payload);
   return data;
 };
 
 export const register = async (payload: RegisterRequest): Promise<TokenResponse> => {
-  const { data } = await axios.post<TokenResponse>('/api/auth/register', payload);
+  const baseURL = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
+  const { data } = await axios.post<TokenResponse>(`${baseURL}/auth/register`, payload);
   return data;
 };
